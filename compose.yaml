@@ -1,0 +1,9 @@
+services:
+  my-rust-compiler:
+    image: rust:latest
+    container_name: my-rust-compiler
+    volumes:
+      - ./src:/app
+    working_dir: /app
+    command: sleep infinity
+    stop_grace_period: 1s
