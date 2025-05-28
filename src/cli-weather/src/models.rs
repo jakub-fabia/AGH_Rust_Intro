@@ -57,3 +57,37 @@ pub struct HourData {
     pub condition: Condition,
     pub air_quality: AirQuality,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json;
+
+    #[test]
+    fn location_serde_roundtrip() {
+        let loc = Location { name: "Warsaw".into(), country: "PL".into() };
+        let json = serde_json::to_string(&loc).unwrap();
+        let loc2: Location = serde_json::from_str(&json).unwrap();
+        assert_eq!(loc.name, loc2.name);
+        assert_eq!(loc.country, loc2.country);
+    }
+
+    #[test]
+    fn hourdata_serde_roundtrip() {
+        let hour = HourData {
+            time: "2025-05-28 13:00".into(),
+            temp_c: 20.5,
+            wind_kph: 5.0,
+            humidity: 50,
+            chance_of_rain: 10,
+            condition: Condition { text: "Sunny".into() },
+            air_quality: AirQuality { pm2_5: 12.3, pm10: 25.6 },
+        };
+        let json = serde_json::to_string(&hour).unwrap();
+        let back: HourData = serde_json::from_str(&json).unwrap();
+        assert_eq!(hour.time, back.time);
+        assert!((hour.temp_c - back.temp_c).abs() < f64::EPSILON);
+        assert_eq!(hour.humidity, back.humidity);
+        assert_eq!(back.condition.text, "Sunny");
+    }
+}

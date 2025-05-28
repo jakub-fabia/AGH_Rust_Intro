@@ -15,6 +15,10 @@ pub fn filter_weather_data(mut data: WeatherData) -> WeatherData {
         .filter_map(|mut day| {
             let day_date = NaiveDate::parse_from_str(&day.date, "%Y-%m-%d").ok()?;
 
+            if day_date < today || day_date > today + chrono::Duration::days(3) {
+                return None;
+            }
+
             let filtered_hours: Vec<HourData> = day
                 .hour
                 .into_iter()
@@ -50,4 +54,74 @@ pub fn filter_weather_data(mut data: WeatherData) -> WeatherData {
 
     data.forecast.forecastday = forecastday_filtered;
     data
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::*;
+
+    fn make_hour(time: &str) -> HourData {
+        HourData {
+            time: time.to_string(),
+            temp_c: 0.0,
+            wind_kph: 0.0,
+            humidity: 0,
+            chance_of_rain: 0,
+            condition: Condition { text: "Clear".into() },
+            air_quality: AirQuality { pm2_5: 0.0, pm10: 0.0 },
+        }
+    }
+
+    fn make_weather_data(date: &str, hours: Vec<HourData>) -> WeatherData {
+        WeatherData {
+            location: Location { name: "X".into(), country: "Y".into() },
+            current: Current {
+                last_updated: format!("{} 00:00", date),
+                temp_c: 0.0, wind_kph: 0.0, humidity: 0, precip_mm: 0.0,
+                condition: Condition { text: "N/A".into() },
+                is_day: 1,
+                air_quality: AirQuality { pm2_5: 0.0, pm10: 0.0 },
+            },
+            forecast: Forecast {
+                forecastday: vec![
+                    ForecastDay {
+                        date: date.to_string(),
+                        hour: hours,
+                    }
+                ],
+            },
+        }
+    }
+
+    #[test]
+    fn future_day_keeps_only_8_13_18() {
+        let tomorrow = (Local::now().date_naive() + chrono::Duration::days(1)).format("%Y-%m-%d").to_string();
+        let all_hours = vec![
+            make_hour(&format!("{} 00:00", tomorrow)),
+            make_hour(&format!("{} 08:00", tomorrow)),
+            make_hour(&format!("{} 10:00", tomorrow)),
+            make_hour(&format!("{} 13:00", tomorrow)),
+            make_hour(&format!("{} 18:00", tomorrow)),
+            make_hour(&format!("{} 23:00", tomorrow)),
+        ];
+        let data = make_weather_data(&tomorrow, all_hours);
+        let filtered = filter_weather_data(data);
+        let kept: Vec<u8> = filtered.forecast.forecastday[0]
+            .hour
+            .iter()
+            .map(|h| h.time[11..13].parse().unwrap())
+            .collect();
+        assert_eq!(kept, vec![8, 13, 18]);
+    }
+
+    #[test]
+    fn past_day_is_dropped() {
+        let yesterday = (Local::now().date_naive() - chrono::Duration::days(1)).format("%Y-%m-%d").to_string();
+        let hours = vec![make_hour(&format!("{} 08:00", yesterday))];
+        let data = make_weather_data(&yesterday, hours);
+        let filtered = filter_weather_data(data);
+        assert!(filtered.forecast.forecastday.is_empty());
+    }
 }
