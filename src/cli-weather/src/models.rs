@@ -1,9 +1,4 @@
-use reqwest::blocking::get;
-use serde::Deserialize;
-use serde::Serialize;
-use std::fs::File;
-use std::io::Write;
-use std::io::Read;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct WeatherData {
@@ -30,16 +25,14 @@ pub struct Current {
     pub air_quality: AirQuality,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Condition {
     pub text: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct AirQuality {
-    #[serde(rename = "pm2_5")]
     pub pm2_5: f64,
-    #[serde(rename = "pm10")]
     pub pm10: f64,
 }
 
@@ -66,7 +59,7 @@ pub struct Day {
     pub condition: Condition,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct HourData {
     pub time: String,
     pub temp_c: f64,
@@ -74,26 +67,4 @@ pub struct HourData {
     pub humidity: u8,
     pub chance_of_rain: u8,
     pub condition: Condition,
-}
-
-pub fn fetch_weather(api_key: &str, city: &str) -> Result<WeatherData, Box<dyn std::error::Error>> {
-    let url = format!(
-        "https://api.weatherapi.com/v1/forecast.json?key={}&q={}&days=3&aqi=yes&lang=pl",
-        api_key, city
-    );
-
-    let resp = get(&url)?.json::<WeatherData>()?;
-
-    if let Ok(json_str) = serde_json::to_string_pretty(&resp) {
-        let _ = File::create("weather_dump.json").and_then(|mut f| f.write_all(json_str.as_bytes()));
-    }
-    Ok(resp)
-
-    // let mut file = File::open("weather_dump.json")?;
-    // let mut contents = String::new();
-    // file.read_to_string(&mut contents)?;
-
-    // let data: WeatherData = serde_json::from_str(&contents)?;
-
-    // Ok(data)
 }
