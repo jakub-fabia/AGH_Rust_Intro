@@ -4,14 +4,14 @@
     "country": "Poland"
   },
   "current": {
-    "last_updated": "2025-05-28 20:15",
+    "last_updated": "2025-05-28 20:45",
     "temp_c": 15.2,
-    "is_day": 1,
+    "is_day": 0,
     "wind_kph": 11.2,
     "precip_mm": 1.33,
     "humidity": 94,
     "condition": {
-      "text": "Light rain"
+      "text": "Partly cloudy"
     },
     "air_quality": {
       "pm2_5": 15.91,

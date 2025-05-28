@@ -63,4 +63,18 @@ impl MongoDb {
 
         Ok(times)
     }
+    pub async fn get_all_entry_times_for_city(&self, city: &str) -> mongodb::error::Result<Vec<String>> {
+        let filter = doc! { "location.name": city };
+        let cursor = self.collection.find(filter, None).await?;
+        let mut times = Vec::new();
+
+        let docs = cursor.collect::<Vec<_>>().await;
+        for doc in docs {
+            if let Ok(data) = doc {
+                times.push(data.current.last_updated.clone());
+            }
+        }
+
+        Ok(times)
+    }
 }

@@ -9,7 +9,7 @@ use dotenv::dotenv;
 use std::env;
 use db::MongoDb;
 use cli::{get_user_input, Mode};
-use display::display_weather;
+use display::interactive_weather_view;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -19,30 +19,33 @@ async fn main() -> anyhow::Result<()> {
 
     let db = MongoDb::new(&mongo_url, "weather_app", "weather_data").await?;
 
-    let times = db.get_all_entry_times().await?;
-
-    let user_input = get_user_input(Some(times)).unwrap();
+    let user_input = get_user_input(None).unwrap();
 
     match user_input.mode {
-    Mode::CurrentWeather => {
-        let data = api::fetch_weather_from_api(&api_key, &user_input.city).await?;
-        db.insert_if_new(&data).await?;
-        println!("🌤 Placeholder: Fetched and stored weather for {}", data.location.name);
-        display_weather(&data);
-    }
+        Mode::CurrentWeather => {
+            let data = api::fetch_weather_from_api(&api_key, &user_input.city).await?;
+            db.insert_if_new(&data).await?;
+            println!("🌤 Placeholder: Fetched and stored weather for {}", data.location.name);
+            interactive_weather_view(&data);
+        }
 
-    Mode::DatabaseQuery => {
-        if let Some(ref time) = user_input.selected_time {
-            if let Some(ref data) = db.get_by_location_and_time(&user_input.city, time).await? {
-                println!("📜 Showing DB entry for {} at {}", user_input.city, time);
-                display_weather(data);
+        Mode::DatabaseQuery => {
+            // Query DB for available entries after entering city
+            let times = db.get_all_entry_times_for_city(&user_input.city).await?;
+
+            if times.is_empty() {
+                println!("❌ No weather data found for '{}'.", user_input.city);
             } else {
-                println!("❌ No weather data found for that city and time.");
+                let time = inquire::Select::new("Choose entry timestamp:", times).prompt()?;
+                if let Some(ref data) = db.get_by_location_and_time(&user_input.city, &time).await? {
+                    println!("📜 Showing DB entry for {} at {}", user_input.city, time);
+                    interactive_weather_view(data);
+                } else {
+                    println!("❌ Entry not found for {} at {}", user_input.city, time);
+                }
             }
         }
     }
-}
-
 
     Ok(())
 }
