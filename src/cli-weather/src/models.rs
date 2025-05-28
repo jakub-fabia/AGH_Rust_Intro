@@ -30,7 +30,7 @@ pub struct Condition {
     pub text: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct AirQuality {
     pub pm2_5: f64,
     pub pm10: f64,
@@ -44,19 +44,7 @@ pub struct Forecast {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ForecastDay {
     pub date: String,
-    pub day: Day,
     pub hour: Vec<HourData>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct Day {
-    pub maxtemp_c: f64,
-    pub avgtemp_c: f64,
-    pub mintemp_c: f64,
-    pub maxwind_kph: f64,
-    pub totalprecip_mm: f64,
-    pub daily_chance_of_rain: u8,
-    pub condition: Condition,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -67,4 +55,5 @@ pub struct HourData {
     pub humidity: u8,
     pub chance_of_rain: u8,
     pub condition: Condition,
+    pub air_quality: AirQuality,
 }
