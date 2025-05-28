@@ -4,6 +4,7 @@ use mongodb::{
     Client, Collection, IndexModel,
 };
 use crate::models::WeatherData;
+use futures::stream::StreamExt;
 
 pub struct MongoDb {
     collection: Collection<WeatherData>,
@@ -47,5 +48,19 @@ impl MongoDb {
         };
 
         self.collection.find_one(query, None).await
+    }
+
+    pub async fn get_all_entry_times(&self) -> mongodb::error::Result<Vec<String>> {
+        let cursor = self.collection.find(None, None).await?;
+        let mut times = Vec::new();
+
+        let docs = cursor.collect::<Vec<_>>().await;
+        for doc in docs {
+            if let Ok(data) = doc {
+                times.push(data.current.last_updated.clone());
+            }
+        }
+
+        Ok(times)
     }
 }

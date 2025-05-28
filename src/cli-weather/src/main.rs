@@ -2,33 +2,47 @@ mod api;
 mod filter;
 mod models;
 mod db;
+mod cli;
+mod display;
 
 use dotenv::dotenv;
 use std::env;
 use db::MongoDb;
+use cli::{get_user_input, Mode};
+use display::display_weather;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
     dotenv().ok();
+    let api_key = env::var("WEATHER_API_KEY")?;
+    let mongo_url = env::var("MONGO_URL")?;
 
-    let api_key = env::var("WEATHER_API_KEY").expect("Brak WEATHER_API_KEY");
-    let db = MongoDb::new("mongodb://db:27017", "weather_app", "weather_data")
-        .await
-        .expect("Failed to connect to MongoDB");
+    let db = MongoDb::new(&mongo_url, "weather_app", "weather_data").await?;
 
-    let city = "Cracow"; // później zmienimy na parametr CLI
+    let times = db.get_all_entry_times().await?;
 
-    match api::fetch_weather_from_api(&api_key, city).await {
-        Ok(data) => {
-            println!("🌤 Pogoda teraz: {}°C, {}", data.current.temp_c, data.current.condition.text);
-            println!("💨 PM2.5: {}, PM10: {}", data.current.air_quality.pm2_5, data.current.air_quality.pm10);
+    let user_input = get_user_input(Some(times)).unwrap();
 
-            if let Err(e) = db.insert_if_new(&data).await {
-                eprintln!("❌ Błąd podczas zapisywania do bazy: {}", e);
+    match user_input.mode {
+    Mode::CurrentWeather => {
+        let data = api::fetch_weather_from_api(&api_key, &user_input.city).await?;
+        db.insert_if_new(&data).await?;
+        println!("🌤 Placeholder: Fetched and stored weather for {}", data.location.name);
+        display_weather(&data);
+    }
+
+    Mode::DatabaseQuery => {
+        if let Some(ref time) = user_input.selected_time {
+            if let Some(ref data) = db.get_by_location_and_time(&user_input.city, time).await? {
+                println!("📜 Showing DB entry for {} at {}", user_input.city, time);
+                display_weather(data);
             } else {
-                println!("✅ Dane pogodowe zapisane do MongoDB.");
+                println!("❌ No weather data found for that city and time.");
             }
         }
-        Err(e) => eprintln!("❌ Błąd podczas pobierania danych pogodowych: {e}"),
     }
+}
+
+
+    Ok(())
 }

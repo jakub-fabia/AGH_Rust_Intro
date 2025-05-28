@@ -19,7 +19,7 @@ pub struct Current {
     pub temp_c: f64,
     pub is_day: u8,
     pub wind_kph: f64,
-    pub wind_dir: String,
+    pub precip_mm: f64,
     pub humidity: u8,
     pub condition: Condition,
     pub air_quality: AirQuality,

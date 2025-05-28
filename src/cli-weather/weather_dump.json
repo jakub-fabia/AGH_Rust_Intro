@@ -4,17 +4,17 @@
     "country": "Poland"
   },
   "current": {
-    "last_updated": "2025-05-28 19:00",
-    "temp_c": 18.0,
+    "last_updated": "2025-05-28 20:15",
+    "temp_c": 15.2,
     "is_day": 1,
-    "wind_kph": 16.2,
-    "wind_dir": "WNW",
-    "humidity": 68,
+    "wind_kph": 11.2,
+    "precip_mm": 1.33,
+    "humidity": 94,
     "condition": {
-      "text": "Częściowe zachmurzenie"
+      "text": "Light rain"
     },
     "air_quality": {
-      "pm2_5": 15.725,
+      "pm2_5": 15.91,
       "pm10": 19.055
     }
   },
@@ -30,7 +30,7 @@
           "totalprecip_mm": 11.21,
           "daily_chance_of_rain": 94,
           "condition": {
-            "text": "Średnie opady deszczu"
+            "text": "Moderate rain"
           }
         },
         "hour": [
@@ -41,7 +41,7 @@
             "humidity": 95,
             "chance_of_rain": 100,
             "condition": {
-              "text": "Lekka mżawka"
+              "text": "Light drizzle"
             }
           },
           {
@@ -51,7 +51,7 @@
             "humidity": 82,
             "chance_of_rain": 100,
             "condition": {
-              "text": "Lekkie, przelotne opady deszczu"
+              "text": "Light rain shower"
             }
           },
           {
@@ -61,7 +61,7 @@
             "humidity": 77,
             "chance_of_rain": 100,
             "condition": {
-              "text": "Miejscowe opady deszczu w pobliżu"
+              "text": "Patchy rain nearby"
             }
           }
         ]
@@ -76,7 +76,7 @@
           "totalprecip_mm": 0.01,
           "daily_chance_of_rain": 0,
           "condition": {
-            "text": "Częściowe zachmurzenie"
+            "text": "Partly Cloudy "
           }
         },
         "hour": [
@@ -87,7 +87,7 @@
             "humidity": 70,
             "chance_of_rain": 0,
             "condition": {
-              "text": "Słonecznie"
+              "text": "Sunny"
             }
           },
           {
@@ -97,7 +97,7 @@
             "humidity": 62,
             "chance_of_rain": 0,
             "condition": {
-              "text": "Częściowe zachmurzenie"
+              "text": "Partly Cloudy "
             }
           },
           {
@@ -107,7 +107,7 @@
             "humidity": 82,
             "chance_of_rain": 0,
             "condition": {
-              "text": "Zachmurzenie"
+              "text": "Cloudy "
             }
           }
         ]
