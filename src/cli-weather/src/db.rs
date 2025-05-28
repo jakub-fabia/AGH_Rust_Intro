@@ -1,8 +1,4 @@
-use mongodb::{
-    bson::doc,
-    options::{ClientOptions, IndexOptions},
-    Client, Collection, IndexModel,
-};
+use mongodb::{ bson::doc, options::{ClientOptions, IndexOptions}, Client, Collection, IndexModel };
 use crate::models::WeatherData;
 use futures::stream::StreamExt;
 
@@ -36,7 +32,6 @@ impl MongoDb {
         if self.collection.find_one(query, None).await?.is_none() {
             self.collection.insert_one(weather, None).await?;
         }
-
         Ok(())
     }
 

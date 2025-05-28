@@ -19,7 +19,7 @@ async fn main() -> anyhow::Result<()> {
 
     let db = MongoDb::new(&mongo_url, "weather_app", "weather_data").await?;
 
-    let user_input = get_user_input(None).unwrap();
+    let user_input = get_user_input().unwrap();
 
     match user_input.mode {
         Mode::CurrentWeather => {
