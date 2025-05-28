@@ -1,5 +1,5 @@
 use mongodb::{
-    bson::{doc, to_document},
+    bson::doc,
     options::{ClientOptions, IndexOptions},
     Client, Collection, IndexModel,
 };
@@ -17,7 +17,6 @@ impl MongoDb {
         let database = client.database(db_name);
         let collection = database.collection::<WeatherData>(collection_name);
 
-        // Ensure unique index on location.name and current.last_updated
         let index_model = IndexModel::builder()
             .keys(doc! { "location.name": 1, "current.last_updated": 1 })
             .options(IndexOptions::builder().unique(true).build())
@@ -50,19 +49,6 @@ impl MongoDb {
         self.collection.find_one(query, None).await
     }
 
-    pub async fn get_all_entry_times(&self) -> mongodb::error::Result<Vec<String>> {
-        let cursor = self.collection.find(None, None).await?;
-        let mut times = Vec::new();
-
-        let docs = cursor.collect::<Vec<_>>().await;
-        for doc in docs {
-            if let Ok(data) = doc {
-                times.push(data.current.last_updated.clone());
-            }
-        }
-
-        Ok(times)
-    }
     pub async fn get_all_entry_times_for_city(&self, city: &str) -> mongodb::error::Result<Vec<String>> {
         let filter = doc! { "location.name": city };
         let cursor = self.collection.find(filter, None).await?;

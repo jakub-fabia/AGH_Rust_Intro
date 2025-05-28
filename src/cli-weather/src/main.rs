@@ -25,12 +25,11 @@ async fn main() -> anyhow::Result<()> {
         Mode::CurrentWeather => {
             let data = api::fetch_weather_from_api(&api_key, &user_input.city).await?;
             db.insert_if_new(&data).await?;
-            println!("🌤 Placeholder: Fetched and stored weather for {}", data.location.name);
-            interactive_weather_view(&data);
+            println!("🌤  Fetched and stored weather for {}", data.location.name);
+            let _ = interactive_weather_view(&data);
         }
 
         Mode::DatabaseQuery => {
-            // Query DB for available entries after entering city
             let times = db.get_all_entry_times_for_city(&user_input.city).await?;
 
             if times.is_empty() {
@@ -39,7 +38,7 @@ async fn main() -> anyhow::Result<()> {
                 let time = inquire::Select::new("Choose entry timestamp:", times).prompt()?;
                 if let Some(ref data) = db.get_by_location_and_time(&user_input.city, &time).await? {
                     println!("📜 Showing DB entry for {} at {}", user_input.city, time);
-                    interactive_weather_view(data);
+                    let _ = interactive_weather_view(data);
                 } else {
                     println!("❌ Entry not found for {} at {}", user_input.city, time);
                 }

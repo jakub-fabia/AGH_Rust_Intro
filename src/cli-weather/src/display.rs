@@ -7,7 +7,6 @@ use anyhow::Result;
 pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
     let mut all_data = vec![];
 
-    // Push current
     all_data.push((
         data.current.last_updated.clone(),
         data.current.temp_c,
@@ -18,7 +17,6 @@ pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
         data.current.is_day != 0,
     ));
 
-    // Push forecast hours (8, 13, 18) and days
     for day in &data.forecast.forecastday {
         for hour in [&8, &13, &18] {
             if let Some(h) = day.hour.iter().find(|h| h.time.ends_with(&format!("{:02}:00", hour))) {
@@ -35,7 +33,6 @@ pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
         }
     }
 
-    // Build menu options
     let options: Vec<String> = all_data
         .iter()
         .map(|entry| format!("{} - {}", entry.0, entry.5))
@@ -44,7 +41,6 @@ pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
     let choice = Select::new("Choose forecast view (↑↓, ⏎ to select):", options).prompt()?;
     let index = all_data.iter().position(|entry| format!("{} - {}", entry.0, entry.5) == choice).unwrap_or(0);
 
-    // Display selected entry
     std::process::Command::new("clear").status().ok();
     println!("{:^80}\n", format!("{} ({})", data.location.name.bold().cyan(), data.location.country.bold().cyan()));
 

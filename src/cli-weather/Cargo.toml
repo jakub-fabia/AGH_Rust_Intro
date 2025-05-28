@@ -1,6 +1,6 @@
 [package]
-name = "cli-pogodynka"
-version = "0.1.0"
+name = "cli-weather-app"
+version = "0.1.5"
 edition = "2024"
 
 [dependencies]
