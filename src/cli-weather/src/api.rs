@@ -1,4 +1,4 @@
-use reqwest::blocking::get;
+use reqwest::Client;
 use std::fs::File;
 use std::io::{Write, Read};
 use crate::filter;
@@ -15,18 +15,20 @@ pub fn fetch_weather_from_file(api_key: &str, _city: &str) -> Result<WeatherData
     Ok(data)
 }
 
-pub fn fetch_weather_from_api(api_key: &str, city: &str) -> Result<WeatherData, Box<dyn std::error::Error>> {
+pub async fn fetch_weather_from_api(api_key: &str, city: &str) -> Result<WeatherData, Box<dyn std::error::Error>> {
     let url = format!(
         "https://api.weatherapi.com/v1/forecast.json?key={}&q={}&days=3&aqi=yes&lang=pl",
         api_key, city
     );
 
-    let resp = get(&url)?.json::<WeatherData>()?;
+    let client = Client::new();
+    let resp = client.get(&url).send().await?.json::<WeatherData>().await?;
 
     let filtered: WeatherData = filter::filter_weather_data(resp);
 
     if let Ok(json_str) = serde_json::to_string_pretty(&filtered) {
-        let _ = File::create("weather_dump.json").and_then(|mut f| f.write_all(json_str.as_bytes()));
+        let _ = std::fs::write("weather_dump.json", json_str);
     }
+
     Ok(filtered)
 }

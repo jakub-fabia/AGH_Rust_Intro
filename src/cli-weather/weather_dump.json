@@ -4,18 +4,18 @@
     "country": "Poland"
   },
   "current": {
-    "last_updated": "2025-05-28 18:30",
-    "temp_c": 18.1,
+    "last_updated": "2025-05-28 19:00",
+    "temp_c": 18.0,
     "is_day": 1,
-    "wind_kph": 20.9,
-    "wind_dir": "W",
+    "wind_kph": 16.2,
+    "wind_dir": "WNW",
     "humidity": 68,
     "condition": {
       "text": "Częściowe zachmurzenie"
     },
     "air_quality": {
-      "pm2_5": 16.65,
-      "pm10": 19.61
+      "pm2_5": 15.725,
+      "pm10": 19.055
     }
   },
   "forecast": {
@@ -23,12 +23,12 @@
       {
         "date": "2025-05-29",
         "day": {
-          "maxtemp_c": 14.9,
-          "avgtemp_c": 12.4,
-          "mintemp_c": 8.9,
-          "maxwind_kph": 28.1,
-          "totalprecip_mm": 5.61,
-          "daily_chance_of_rain": 92,
+          "maxtemp_c": 14.7,
+          "avgtemp_c": 12.1,
+          "mintemp_c": 7.9,
+          "maxwind_kph": 27.0,
+          "totalprecip_mm": 11.21,
+          "daily_chance_of_rain": 94,
           "condition": {
             "text": "Średnie opady deszczu"
           }
@@ -36,19 +36,19 @@
         "hour": [
           {
             "time": "2025-05-29 08:00",
-            "temp_c": 11.2,
-            "wind_kph": 25.6,
-            "humidity": 91,
+            "temp_c": 11.6,
+            "wind_kph": 25.9,
+            "humidity": 95,
             "chance_of_rain": 100,
             "condition": {
-              "text": "Miejscowe opady deszczu w pobliżu"
+              "text": "Lekka mżawka"
             }
           },
           {
             "time": "2025-05-29 13:00",
-            "temp_c": 14.6,
-            "wind_kph": 23.4,
-            "humidity": 76,
+            "temp_c": 13.9,
+            "wind_kph": 24.1,
+            "humidity": 82,
             "chance_of_rain": 100,
             "condition": {
               "text": "Lekkie, przelotne opady deszczu"
@@ -56,9 +56,9 @@
           },
           {
             "time": "2025-05-29 18:00",
-            "temp_c": 13.7,
-            "wind_kph": 22.3,
-            "humidity": 76,
+            "temp_c": 13.9,
+            "wind_kph": 21.2,
+            "humidity": 77,
             "chance_of_rain": 100,
             "condition": {
               "text": "Miejscowe opady deszczu w pobliżu"
@@ -69,11 +69,11 @@
       {
         "date": "2025-05-30",
         "day": {
-          "maxtemp_c": 15.6,
-          "avgtemp_c": 11.8,
-          "mintemp_c": 7.3,
-          "maxwind_kph": 16.2,
-          "totalprecip_mm": 0.06,
+          "maxtemp_c": 16.1,
+          "avgtemp_c": 12.2,
+          "mintemp_c": 7.0,
+          "maxwind_kph": 17.3,
+          "totalprecip_mm": 0.01,
           "daily_chance_of_rain": 0,
           "condition": {
             "text": "Częściowe zachmurzenie"
@@ -82,9 +82,9 @@
         "hour": [
           {
             "time": "2025-05-30 08:00",
-            "temp_c": 14.4,
-            "wind_kph": 15.5,
-            "humidity": 69,
+            "temp_c": 14.1,
+            "wind_kph": 15.8,
+            "humidity": 70,
             "chance_of_rain": 0,
             "condition": {
               "text": "Słonecznie"
@@ -92,9 +92,9 @@
           },
           {
             "time": "2025-05-30 13:00",
-            "temp_c": 13.7,
-            "wind_kph": 11.9,
-            "humidity": 72,
+            "temp_c": 15.9,
+            "wind_kph": 15.1,
+            "humidity": 62,
             "chance_of_rain": 0,
             "condition": {
               "text": "Częściowe zachmurzenie"
@@ -102,12 +102,12 @@
           },
           {
             "time": "2025-05-30 18:00",
-            "temp_c": 12.9,
-            "wind_kph": 10.8,
-            "humidity": 84,
+            "temp_c": 15.0,
+            "wind_kph": 10.4,
+            "humidity": 82,
             "chance_of_rain": 0,
             "condition": {
-              "text": "Pochmurno"
+              "text": "Zachmurzenie"
             }
           }
         ]
