@@ -15,7 +15,7 @@ pub fn filter_weather_data(mut data: WeatherData) -> WeatherData {
         .filter_map(|mut day| {
             let day_date = NaiveDate::parse_from_str(&day.date, "%Y-%m-%d").ok()?;
 
-            if day_date < today || day_date > today + chrono::Duration::days(3) {
+            if day_date < today || day_date > today + chrono::Duration::days(7) {
                 return None;
             }
 

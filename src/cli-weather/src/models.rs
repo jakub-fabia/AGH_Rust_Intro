@@ -32,8 +32,11 @@ pub struct Condition {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct AirQuality {
-    pub pm2_5: f64,
-    pub pm10: f64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pm2_5: Option<f64>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pm10: Option<f64>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -57,6 +60,16 @@ pub struct HourData {
     pub is_day: u8,
     pub condition: Condition,
     pub air_quality: AirQuality,
+}
+
+pub enum Mode {
+    CurrentWeather,
+    DatabaseQuery,
+}
+
+pub struct CliInput {
+    pub mode: Mode,
+    pub city: String,
 }
 
 #[cfg(test)]

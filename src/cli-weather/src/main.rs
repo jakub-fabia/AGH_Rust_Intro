@@ -3,13 +3,13 @@ mod filter;
 mod models;
 mod db;
 mod cli;
-mod display;
+mod image;
 
 use dotenv::dotenv;
 use std::env;
 use db::MongoDb;
-use cli::{get_user_input, Mode};
-use display::interactive_weather_view;
+use models::{Mode};
+use cli::{get_source_and_city, interactive_weather_view};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -19,7 +19,7 @@ async fn main() -> anyhow::Result<()> {
 
     let db = MongoDb::new(&mongo_url, "weather_app", "weather_data").await?;
 
-    let user_input = get_user_input().unwrap();
+    let user_input = get_source_and_city().unwrap();
 
     match user_input.mode {
         Mode::CurrentWeather => {
