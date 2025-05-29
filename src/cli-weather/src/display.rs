@@ -4,83 +4,66 @@ use inquire::Select;
 use anyhow::Result;
 
 pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
-    let mut all_data = Vec::new();
+    let mut daily_groups: Vec<(String, Vec<(String, String)>)> = Vec::new();
 
-    all_data.push((
-        data.current.last_updated.clone(),
-        data.current.temp_c,
-        data.current.wind_kph,
-        data.current.humidity,
-        data.current.precip_mm,
-        data.current.condition.text.clone(),
-        data.current.is_day != 0,
-        data.current.air_quality.pm2_5,
-        data.current.air_quality.pm10,
-        true,
-    ));
+    for (i, day) in data.forecast.forecastday.iter().enumerate() {
+        let day_label = if i == 0 {
+            "Today".to_string()
+        } else {
+            day.date.clone()
+        };
 
-    // Forecast entries (08:00, 13:00, 18:00) with chance_of_rain and placeholders for air quality
-    for day in &data.forecast.forecastday {
-        for hour in [&2, &6, &10, &14, &18, &22] {
-            if let Some(h) = day.hour.iter().find(|h| h.time.ends_with(&format!("{:02}:00", hour))) {
-                all_data.push((
-                    h.time.clone(),
-                    h.temp_c,
-                    h.wind_kph,
-                    h.humidity,
-                    h.chance_of_rain as f64,
-                    h.condition.text.clone(),
-                    h.time[11..13].parse::<u8>().unwrap_or(12) < 18,
-                    h.air_quality.pm2_5,
-                    h.air_quality.pm10,
-                    false,
-                ));
+        let mut hours = Vec::new();
+        for target_hour in [&2, &6, &10, &14, &18, &22] {
+            if let Some(h) = day.hour.iter().find(|h| h.time.ends_with(&format!("{:02}:00", target_hour))) {
+                hours.push((h.time.clone(), h.condition.text.clone()));
             }
+        }
+
+        if !hours.is_empty() {
+            daily_groups.push((day_label, hours));
         }
     }
 
-    let mut labels: Vec<String> = all_data
-        .iter()
-        .map(|entry| format!("{} - {}", entry.0, entry.5))
-        .collect();
-    labels.push("Exit".to_string());
-
     loop {
-        let choice = Select::new("Choose forecast view (↑↓, ⏎ to select):", labels.clone()).prompt()?;
-        if choice == "Exit" {
-            // Exit loop
+        let day_choices: Vec<String> = daily_groups.iter().map(|(d, _)| d.clone()).chain(["Exit".to_string()]).collect();
+        let day_choice = Select::new("Choose day:", day_choices).prompt()?;
+        if day_choice == "Exit" {
             println!("\nGoodbye! ☀");
             break;
         }
 
-        let index = all_data
+        let hours = daily_groups.iter().find(|(d, _)| *d == day_choice).unwrap().1.clone();
+        let hour_labels: Vec<String> = hours.iter().map(|(t, cond)| format!("{} - {}", t, cond)).chain(["Back".to_string()]).collect();
+        let hour_choice = Select::new("Choose hour:", hour_labels).prompt()?;
+        if hour_choice == "Back" {
+            continue;
+        }
+
+        let (selected_time, _) = hours.iter().find(|(t, c)| format!("{} - {}", t, c) == hour_choice).unwrap();
+
+        let entry = data.forecast.forecastday
             .iter()
-            .position(|entry| format!("{} - {}", entry.0, entry.5) == choice)
-            .unwrap_or(0);
+            .flat_map(|d| &d.hour)
+            .find(|h| &h.time == selected_time)
+            .unwrap();
 
         std::process::Command::new("clear").status().ok();
         println!("{:^80}\n", format!("{} ({})", data.location.name.bold().cyan(), data.location.country.bold().cyan()));
-
         println!("{}", "WeatherCLI".bold().yellow());
-        println!("{}", all_data[index].0);
-        println!("{}\n", all_data[index].5.clone());
+        println!("{}\n", entry.time);
+        println!("{}\n", entry.condition.text);
 
-        let art = ascii_art(&all_data[index].5, all_data[index].6);
-        let temp_display = format_temperature(all_data[index].1);
-
-        let precip_label = if all_data[index].9 {
-            format!("Precipitation: {:.1} mm", all_data[index].4)
-        } else {
-            format!("Chance of rain: {}%", all_data[index].4 as u8)
-        };
+        let art = ascii_art(&entry.condition.text, entry.is_day == 1);
+        let temp_display = format_temperature(entry.temp_c);
 
         let right = format!(
-            "Wind: {:.1} kph\nHumidity: {}%\n{}\nPM2.5: {:.1} µg/m³\nPM10: {:.1} µg/m³",
-            all_data[index].2,
-            all_data[index].3,
-            precip_label,
-            all_data[index].7,
-            all_data[index].8
+            "Wind: {:.1} kph\nHumidity: {}%\nChance of rain: {}%\nPM2.5: {:.1} µg/m³\nPM10: {:.1} µg/m³",
+            entry.wind_kph,
+            entry.humidity,
+            entry.chance_of_rain,
+            entry.air_quality.pm2_5,
+            entry.air_quality.pm10
         );
 
         let right_lines = right.lines().count();

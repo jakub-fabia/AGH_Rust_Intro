@@ -54,6 +54,7 @@ pub struct HourData {
     pub wind_kph: f64,
     pub humidity: u8,
     pub chance_of_rain: u8,
+    pub is_day: u8,
     pub condition: Condition,
     pub air_quality: AirQuality,
 }
