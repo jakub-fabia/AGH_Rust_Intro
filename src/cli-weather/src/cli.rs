@@ -4,6 +4,9 @@ use colored::*;
 use anyhow::Result;
 use crate::image::match_image;
 
+/// Funkcja pobierająca dane odnośnie miasta i źródła pobierania danych pogodowych
+/// Zwraca `CliInput` zawierający tryb działania aplikacji i nazwę miasta
+/// Jeśli użytkownik wybierze "Quit", aplikacja zakończy działanie
 pub fn get_source_and_city() -> anyhow::Result<CliInput> {
     println!("🌤   Welcome to WeatherCLI!");
     println!("This app allows you to fetch the current weather or explore saved weather data.\n");
@@ -31,9 +34,34 @@ pub fn get_source_and_city() -> anyhow::Result<CliInput> {
     })
 }
 
+
+
+/// Funkcja wyświetlająca interaktywny widok pogody
+/// Przyjmuje dane pogodowe jako argument i umożliwia użytkownikowi przeglądanie prognozy
+/// Urzytkownik kolejno:
+/// - Wybiera dzień (dzisiaj lub kolejne dni)
+/// - Wybiera godzinę (np. 2:00, 6:00, 10:00, 14:00, 18:00, 22:00) lub "Current" dla aktualnej pogody
+/// Pogoda się wyświetla w formie
+/*
+                     Cracow (Poland)
+
+WeatherCLI
+2025-05-31 10:00
+
+Patchy rain nearby
+
+     ☀☁🌧                           21.1°C          Wind: 16.6 kph      
+     🌧𓄼🌧                                           Humidity: 66%       
+     ~~~                                            Chance of rain: 61% 
+                                                    PM2.5: 19.6 µg/m³   
+                                                    PM10: 22.9 µg/m³    
+
+Press Enter to choose again...
+*/
+/// Użytkownik ma możliwość wyboru innego dnia lub godziny, a także powrotu do wybrania miasta i źródła danych
 pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
     let mut daily_groups: Vec<(String, Vec<(String, String)>)> = Vec::new();
-
+    // Parsowanie danych do grup dziennych do menu wyboru
     for (i, day) in data.forecast.forecastday.iter().enumerate() {
         let day_label = if i == 0 {
             "Today".to_string()
@@ -57,6 +85,7 @@ pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
         }
     }
     loop {
+        // Parsowanie wyboru
         let day_choices: Vec<String> = daily_groups.iter().map(|(d, _)| d.clone())
             .chain(["Exit".to_string()]).collect();
         let day_choice = Select::new("Choose day:", day_choices).prompt()?;
@@ -73,10 +102,11 @@ pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
         if hour_choice == "Back" {
             continue;
         }
-
+        
         let (selected_time, _) = hours.iter()
             .find(|(t, c)| format!("{} - {}", t, c) == hour_choice).unwrap();
 
+        // Zbieranie danych dla wybranego czasu
         let entry = if selected_time == "Current" {
             WeatherViewEntry {
                 time: data.current.last_updated.clone(),
@@ -111,6 +141,7 @@ pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
             }
         };
 
+        // Wyświetlanie danych pogodowych
         std::process::Command::new("clear").status().ok();
         println!("{:^80}\n", format!("{} ({})", data.location.name.bold().cyan(), data.location.country.bold().cyan()));
         println!("{}", "WeatherCLI".bold().yellow());
@@ -158,6 +189,7 @@ pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
     Ok(())
 }
 
+// Funkcje formatujące dane pogodowe do wyświetlenia
 fn format_temperature(temp: f64) -> Vec<String> {
     vec![
         format!("    {:.1}°C    ", temp),

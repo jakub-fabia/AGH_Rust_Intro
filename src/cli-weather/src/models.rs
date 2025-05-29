@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+
+/// Struktury danych do parsowania odpowiedzi z API pogodowego
 #[derive(Debug, Deserialize, Serialize)]
 pub struct WeatherData {
     pub location: Location,
@@ -69,11 +71,13 @@ pub enum Mode {
     Quit,
 }
 
+// Struktura do przechowywania danych wejściowych z CLI
 pub struct CliInput {
     pub mode: Mode,
     pub city: String,
 }
 
+// Stuktura do uogólnienia struktury Current i HourData (do poprawnego wyświetlania w cli.rs)
 pub struct WeatherViewEntry {
     pub time: String,
     pub temp_c: f64,

@@ -2,7 +2,11 @@ use crate::models::{ForecastDay, HourData, WeatherData};
 use chrono::{Local, NaiveDate, NaiveDateTime, Timelike, TimeZone};
 use std::vec::Vec;
 
-// Funkcja filtrująca dane pogodowe, usuwa niepotrzebne godziny (np. z dzisiejszego dnia której już minęły) i zostawia tylko godziny wyświetlane w prognozie (8:00, 13:00, 18:00)
+// Funkcja filtrująca dane pogodowe
+// Wejście: `WeatherData` - dane pogodowe do przefiltrowania
+// Wyjście: `WeatherData` - przefiltrowane dane pogodowe
+// Funkcja ta usuwa dni, które są wcześniejsze niż dzisiaj lub późniejsze niż 7 dni od dzisiaj
+// oraz pozostawia tylko określone godziny (2:00, 6:00, 10:00, 14:00, 18:00, 22:00) dla każdego dnia
 pub fn filter_weather_data(mut data: WeatherData) -> WeatherData {
     let now = Local::now() + chrono::Duration::hours(2);
     let today = now.date_naive();

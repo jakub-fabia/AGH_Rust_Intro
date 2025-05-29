@@ -1,3 +1,7 @@
+// Funkcja do generowania obrazków pogodowych na podstawie warunków
+// Wejścia: `condition` - warunek pogodowy jako string, `is_day` - czy jest dzień (bool)
+// Wyjście: `Vec<String>` - wektor z liniami tekstu reprezentującymi obrazek
+
 pub fn match_image(condition: &str, is_day: bool) -> Vec<String> {
     match (condition.trim().to_lowercase().as_str(), is_day) {
         ("sunny", true) => vec![

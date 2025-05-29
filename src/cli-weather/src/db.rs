@@ -7,6 +7,8 @@ pub struct MongoDb {
 }
 
 impl MongoDb {
+    /// Tworzy nową instancję MongoDb, łącząc się z bazą danych i tworząc kolekcję
+    /// o unikalnym indeksie na polach `location.name` i `current.last_updated`.
     pub async fn new(connection_str: &str, db_name: &str, collection_name: &str) -> mongodb::error::Result<Self> {
         let client_options = ClientOptions::parse(connection_str).await?;
         let client = Client::with_options(client_options)?;
@@ -22,7 +24,7 @@ impl MongoDb {
 
         Ok(Self { collection })
     }
-
+    /// Wstawia dane pogodowe do kolekcji, jeśli nie istnieje już wpis z tymi samymi
     pub async fn insert_if_new(&self, weather: &WeatherData) -> mongodb::error::Result<()> {
         let query = doc! {
             "location.name": &weather.location.name,
@@ -34,7 +36,7 @@ impl MongoDb {
         }
         Ok(())
     }
-
+    /// Pobiera dane pogodowe z kolekcji na podstawie lokalizacji i czasu aktualizacji
     pub async fn get_by_location_and_time(&self, location: &str, time: &str) -> mongodb::error::Result<Option<WeatherData>> {
         let query = doc! {
             "location.name": location,
@@ -43,7 +45,7 @@ impl MongoDb {
 
         self.collection.find_one(query, None).await
     }
-
+    /// Pobiera wszystkie czasy aktualizacji dla danego miasta
     pub async fn get_all_entry_times_for_city(&self, city: &str) -> mongodb::error::Result<Vec<String>> {
         let filter = doc! { "location.name": city };
         let cursor = self.collection.find(filter, None).await?;
