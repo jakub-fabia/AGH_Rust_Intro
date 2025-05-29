@@ -62,9 +62,11 @@ pub struct HourData {
     pub air_quality: AirQuality,
 }
 
+#[derive(Debug)]
 pub enum Mode {
     CurrentWeather,
     DatabaseQuery,
+    Quit,
 }
 
 pub struct CliInput {

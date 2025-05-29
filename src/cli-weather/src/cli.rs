@@ -8,8 +8,16 @@ pub fn get_source_and_city() -> anyhow::Result<CliInput> {
     println!("🌤   Welcome to WeatherCLI!");
     println!("This app allows you to fetch the current weather or explore saved weather data.\n");
 
-    let mode_options = vec!["Check current weather", "Query saved weather from database"];
+    let mode_options = vec![
+        "Check current weather",
+        "Query saved weather from database",
+        "Quit"
+    ];
     let mode_choice = Select::new("What would you like to do?", mode_options).prompt()?;
+
+    if mode_choice == "Quit" {
+        return Ok(CliInput { mode: Mode::Quit, city: String::new() });
+    }
 
     let city = Text::new("Enter city name:").prompt()?;
 
@@ -46,7 +54,8 @@ pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
     }
 
     loop {
-        let day_choices: Vec<String> = daily_groups.iter().map(|(d, _)| d.clone()).chain(["Exit".to_string()]).collect();
+        let day_choices: Vec<String> = daily_groups.iter().map(|(d, _)| d.clone())
+            .chain(["Exit".to_string()]).collect();
         let day_choice = Select::new("Choose day:", day_choices).prompt()?;
         if day_choice == "Exit" {
             println!("\nGoodbye! ☀");
@@ -54,13 +63,16 @@ pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
         }
 
         let hours = daily_groups.iter().find(|(d, _)| *d == day_choice).unwrap().1.clone();
-        let hour_labels: Vec<String> = hours.iter().map(|(t, cond)| format!("{} - {}", t, cond)).chain(["Back".to_string()]).collect();
+        let hour_labels: Vec<String> = hours.iter()
+            .map(|(t, cond)| format!("{} - {}", t, cond))
+            .chain(["Back".to_string()]).collect();
         let hour_choice = Select::new("Choose hour:", hour_labels).prompt()?;
         if hour_choice == "Back" {
             continue;
         }
 
-        let (selected_time, _) = hours.iter().find(|(t, c)| format!("{} - {}", t, c) == hour_choice).unwrap();
+        let (selected_time, _) = hours.iter()
+            .find(|(t, c)| format!("{} - {}", t, c) == hour_choice).unwrap();
 
         let entry = data.forecast.forecastday
             .iter()
