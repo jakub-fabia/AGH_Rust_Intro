@@ -1,19 +1,19 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize};
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct WeatherData {
     pub location: Location,
     pub current: Current,
     pub forecast: Forecast,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct Location {
     pub name: String,
     pub country: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct Current {
     pub last_updated: String,
     pub temp_c: f64,
@@ -25,12 +25,12 @@ pub struct Current {
     pub air_quality: AirQuality,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Condition {
     pub text: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct AirQuality {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub pm2_5: Option<f64>,
@@ -39,18 +39,18 @@ pub struct AirQuality {
     pub pm10: Option<f64>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct Forecast {
     pub forecastday: Vec<ForecastDay>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct ForecastDay {
     pub date: String,
     pub hour: Vec<HourData>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct HourData {
     pub time: String,
     pub temp_c: f64,
