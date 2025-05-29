@@ -21,7 +21,7 @@ pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
 
     // Forecast entries (08:00, 13:00, 18:00) with chance_of_rain and placeholders for air quality
     for day in &data.forecast.forecastday {
-        for hour in [&8, &13, &18] {
+        for hour in [&2, &6, &10, &14, &18, &22] {
             if let Some(h) = day.hour.iter().find(|h| h.time.ends_with(&format!("{:02}:00", hour))) {
                 all_data.push((
                     h.time.clone(),
@@ -107,8 +107,8 @@ fn ascii_art(condition: &str, is_day: bool) -> Vec<&'static str> {
         ],
         ("clear", false) => vec![
             "     🌙     ",
-            "   🌙🌙🌙   ",
-            "    ~~~    ",
+            "   🌙🌙🌙  ",
+            "    ~~~     ",
         ],
         ("partly cloudy", true) => vec![
             "    ☁☀☁    ",

@@ -4,7 +4,7 @@ use std::vec::Vec;
 
 // Funkcja filtrująca dane pogodowe, usuwa niepotrzebne godziny (np. z dzisiejszego dnia której już minęły) i zostawia tylko godziny wyświetlane w prognozie (8:00, 13:00, 18:00)
 pub fn filter_weather_data(mut data: WeatherData) -> WeatherData {
-    let now = Local::now();
+    let now = Local::now() + chrono::Duration::hours(2);
     let today = now.date_naive();
     let current_time = now.time();
 
@@ -25,12 +25,11 @@ pub fn filter_weather_data(mut data: WeatherData) -> WeatherData {
                 .filter(|hour| {
                     if let Ok(naive_dt) = NaiveDateTime::parse_from_str(&hour.time, "%Y-%m-%d %H:%M") {
                         if let Some(hour_time) = Local.from_local_datetime(&naive_dt).single() {
-                            let h = hour_time.time().hour();
-                            let m = hour_time.time().minute();
-                            let is_target_hour = [8, 13, 18].contains(&h);
+                            let hour_only = hour_time.time();
+                            let is_target_hour = [2, 6, 10, 14, 18, 22].contains(&hour_only.hour());
 
                             if day_date == today {
-                                is_target_hour && h > current_time.hour() && m > current_time.minute()
+                                is_target_hour && hour_only > current_time
                             } else {
                                 is_target_hour
                             }
@@ -55,6 +54,7 @@ pub fn filter_weather_data(mut data: WeatherData) -> WeatherData {
     data.forecast.forecastday = forecastday_filtered;
     data
 }
+
 
 
 #[cfg(test)]
@@ -96,14 +96,32 @@ mod tests {
     }
 
     #[test]
-    fn future_day_keeps_only_8_13_18() {
+    fn future_day_keeps_only_certain_hours() {
         let tomorrow = (Local::now().date_naive() + chrono::Duration::days(1)).format("%Y-%m-%d").to_string();
         let all_hours = vec![
             make_hour(&format!("{} 00:00", tomorrow)),
+            make_hour(&format!("{} 01:00", tomorrow)),
+            make_hour(&format!("{} 02:00", tomorrow)),
+            make_hour(&format!("{} 03:00", tomorrow)),
+            make_hour(&format!("{} 04:00", tomorrow)),
+            make_hour(&format!("{} 05:00", tomorrow)),
+            make_hour(&format!("{} 06:00", tomorrow)),
+            make_hour(&format!("{} 07:00", tomorrow)),
             make_hour(&format!("{} 08:00", tomorrow)),
+            make_hour(&format!("{} 09:00", tomorrow)),
             make_hour(&format!("{} 10:00", tomorrow)),
+            make_hour(&format!("{} 11:00", tomorrow)),
+            make_hour(&format!("{} 12:00", tomorrow)),
             make_hour(&format!("{} 13:00", tomorrow)),
+            make_hour(&format!("{} 14:00", tomorrow)),
+            make_hour(&format!("{} 15:00", tomorrow)),
+            make_hour(&format!("{} 16:00", tomorrow)),
+            make_hour(&format!("{} 17:00", tomorrow)),
             make_hour(&format!("{} 18:00", tomorrow)),
+            make_hour(&format!("{} 19:00", tomorrow)),
+            make_hour(&format!("{} 20:00", tomorrow)),
+            make_hour(&format!("{} 21:00", tomorrow)),
+            make_hour(&format!("{} 22:00", tomorrow)),
             make_hour(&format!("{} 23:00", tomorrow)),
         ];
         let data = make_weather_data(&tomorrow, all_hours);
@@ -113,7 +131,7 @@ mod tests {
             .iter()
             .map(|h| h.time[11..13].parse().unwrap())
             .collect();
-        assert_eq!(kept, vec![8, 13, 18]);
+        assert_eq!(kept, vec![2, 6, 10, 14, 18, 22]);
     }
 
     #[test]
