@@ -42,6 +42,10 @@ pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
         };
 
         let mut hours = Vec::new();
+        if i == 0 {
+            hours.push(("Current".to_string(), data.current.condition.text.clone()));
+        }
+
         for target_hour in [&2, &6, &10, &14, &18, &22] {
             if let Some(h) = day.hour.iter().find(|h| h.time.ends_with(&format!("{:02}:00", target_hour))) {
                 hours.push((h.time.clone(), h.condition.text.clone()));
@@ -52,7 +56,6 @@ pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
             daily_groups.push((day_label, hours));
         }
     }
-
     loop {
         let day_choices: Vec<String> = daily_groups.iter().map(|(d, _)| d.clone())
             .chain(["Exit".to_string()]).collect();
@@ -74,32 +77,68 @@ pub fn interactive_weather_view(data: &WeatherData) -> Result<()> {
         let (selected_time, _) = hours.iter()
             .find(|(t, c)| format!("{} - {}", t, c) == hour_choice).unwrap();
 
-        let entry = data.forecast.forecastday
-            .iter()
-            .flat_map(|d| &d.hour)
-            .find(|h| &h.time == selected_time)
-            .unwrap();
+        let entry = if selected_time == "Current" {
+            WeatherViewEntry {
+                time: data.current.last_updated.clone(),
+                temp_c: data.current.temp_c,
+                wind_kph: data.current.wind_kph,
+                humidity: data.current.humidity,
+                chance_of_rain: None,
+                precip_mm: Some(data.current.precip_mm),
+                condition_text: data.current.condition.text.clone(),
+                is_day: data.current.is_day != 0,
+                pm2_5: data.current.air_quality.pm2_5,
+                pm10: data.current.air_quality.pm10,
+            }
+        } else {
+            let hour = data.forecast.forecastday
+                .iter()
+                .flat_map(|d| &d.hour)
+                .find(|h| &h.time == selected_time)
+                .unwrap();
+
+            WeatherViewEntry {
+                time: hour.time.clone(),
+                temp_c: hour.temp_c,
+                wind_kph: hour.wind_kph,
+                humidity: hour.humidity,
+                chance_of_rain: Some(hour.chance_of_rain),
+                precip_mm: None,
+                condition_text: hour.condition.text.clone(),
+                is_day: hour.is_day != 0,
+                pm2_5: hour.air_quality.pm2_5,
+                pm10: hour.air_quality.pm10,
+            }
+        };
 
         std::process::Command::new("clear").status().ok();
         println!("{:^80}\n", format!("{} ({})", data.location.name.bold().cyan(), data.location.country.bold().cyan()));
         println!("{}", "WeatherCLI".bold().yellow());
         println!("{}\n", entry.time);
-        println!("{}\n", entry.condition.text);
+        println!("{}\n", entry.condition_text);
 
-        let image = match_image(&entry.condition.text, entry.is_day == 1);
+        let image = match_image(&entry.condition_text, entry.is_day);
         let temp_display = format_temperature(entry.temp_c);
-        let pm2_5_display = display_reading(entry.air_quality.pm2_5);
-        let pm10_display  = display_reading(entry.air_quality.pm10);
+        let pm2_5_display = display_reading(entry.pm2_5);
+        let pm10_display  = display_reading(entry.pm10);
+        let rain_display = if let Some(mm) = entry.precip_mm {
+            format!("Rain: {:.1} mm", mm)
+        } else if let Some(chance) = entry.chance_of_rain {
+            format!("Chance of rain: {}%", chance)
+        } else {
+            "No precipitation data".to_string()
+        };
+                
 
         let right = format!(
             "Wind: {:.1} kph\n\
             Humidity: {}%\n\
-            Chance of rain: {}%\n\
+            {}\n\
             PM2.5: {}\n\
             PM10: {}",
             entry.wind_kph,
             entry.humidity,
-            entry.chance_of_rain,
+            rain_display,
             pm2_5_display,
             pm10_display,
         );
